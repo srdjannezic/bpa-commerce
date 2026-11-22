@@ -128,11 +128,3 @@ docker compose exec mysql mysql -u staza -p staza
 ## Provere
 
 Van Dockera možeš pokrenuti automatizovane testove uz PHP i PDO SQLite posle `composer install` i podešavanja `.env`. Pokreni `php artisan test`. Testovi proveravaju kupovinu bez prijave, izolaciju porudžbina po sesiji, admin pristup i kreiranje korisnika, `ETag`, rollback pri promeni zalihe i jedan posao za potvrdu uplate.
-
-## Demo fotografije
-
-Ugrađeni ImageGen je generisao oba vizuala.
-
-- Durmitor je generisan ovim promptom. “Wide 3:2 editorial photograph for an outdoor equipment web store: rugged pale limestone peaks of Durmitor behind a dark green pine forest in Montenegro, layered mountain ridges, a low band of moody clouds and warm late-afternoon light. Analog grain, rich spruce shadows, natural muted greens and stone tones. Place the most distinct mountain peak slightly right of center, no people, no buildings, absolutely no text or logos.” [Durmitor](public/images/durmitor.webp)
-- Kataloške slike su generisane ovim promptom. “A square 2 by 2 contact sheet of four individual outdoor equipment studio product photographs. Each quadrant strictly equal size, no gutters, each product entirely inside its quadrant with ample space around it. Upper left: single upright dark moss green hiking backpack on pale sage backdrop. Upper right: single upright matte black stainless steel thermos on light cool gray backdrop. Lower left: single mustard yellow waist pack on light oatmeal backdrop. Lower right: single forest green rolled camping mat with straps on light sage backdrop. Stylish modern outdoor ecommerce catalog shooting, tactile realistic materials, soft diffused daylight. No lettering, no logos, no labels, no watermark.” [Fotografije proizvoda](public/images/oprema.webp)
-- Dodatne kataloške slike su generisane ugrađenim ImageGen alatom. Prompt traži preciznu mrežu 4 × 5 jednako velikih kvadratnih fotografija outdoor proizvoda, sa centriranim predmetima, blagim studijskim senkama i jednobojnim pozadinama, bez teksta ili brendova. Redosled proizvoda prati skup `$additionalProducts` u seederu. [Dodatne fotografije proizvoda](public/images/oprema-dodatna.webp)
