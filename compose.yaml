@@ -1,0 +1,60 @@
+name: bpa-commerce
+
+x-laravel: &laravel
+  image: bpa-commerce:local
+  build: .
+  env_file: .env
+  environment:
+    DB_HOST: mysql
+    DB_PORT: 3306
+    SESSION_DRIVER: database
+    CACHE_STORE: database
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-staza}
+      MYSQL_USER: ${DB_USERNAME:-staza}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Podesi DB_PASSWORD u .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Podesi MYSQL_ROOT_PASSWORD u .env}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 3s
+      timeout: 4s
+      retries: 30
+
+  migrate:
+    <<: *laravel
+    command: ["php", "artisan", "migrate", "--force"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  app:
+    <<: *laravel
+    ports:
+      - "127.0.0.1:${APP_PORT:-8015}:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *laravel
+    command: ["php", "artisan", "queue:work", "database", "--sleep=1", "--timeout=30"]
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
+
+volumes:
+  mysql-data:

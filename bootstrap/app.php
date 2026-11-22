@@ -1,0 +1,19 @@
+<?php
+
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Http\Request;
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+    )
+    ->withMiddleware()
+    ->withExceptions(/** Configure exception handling for the application. */ function (Exceptions $exceptions): void {
+        $exceptions->shouldRenderJsonWhen(
+            /** Select requests that should receive JSON errors. */
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+        );
+    })->create();
