@@ -24,6 +24,6 @@ class AdminJwt
 
         $request->attributes->set('admin', $admin);
 
-        return $next($request)->setCache(['private' => true, 'no_store' => true]);
+        return $next($request);
     }
 }

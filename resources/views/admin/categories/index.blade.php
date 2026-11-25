@@ -3,12 +3,12 @@
     <div class="checkout-grid">
         <section class="panel">
             <h2>Postojeće kategorije</h2>
-            @if ($categories->isEmpty())
+            @if (empty($categories))
                 <p class="muted">Još nema kategorija.</p>
             @else
                 <ul class="category-list">
-                    @foreach ($categories as $category)
-                        <li><a class="text-link" href="{{ route('catalog', ['category' => $category->id]) }}#oprema">{{ $category->name }}</a></li>
+                    @foreach ($categories as $id => $name)
+                        <li><a class="text-link" href="{{ route('catalog', ['category' => $id]) }}#oprema">{{ $name }}</a></li>
                     @endforeach
                 </ul>
             @endif

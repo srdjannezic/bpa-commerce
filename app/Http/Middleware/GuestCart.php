@@ -19,6 +19,6 @@ class GuestCart
             $session->put(self::KEY, Str::uuid()->toString());
         }
 
-        return $next($request)->setCache(['private' => true, 'no_store' => true]);
+        return $next($request);
     }
 }

@@ -44,7 +44,7 @@ class CatalogRequest extends FormRequest
             'filters' => array_filter($this->only(array_keys($this->rules())), is_string(...)),
             'categories' => app(CategoryService::class)->options(),
             'filterErrors' => $validator->errors()->all(),
-        ], 422)->setCache(['private' => true, 'no_store' => true]);
+        ], 422);
 
         throw new HttpResponseException($response);
     }

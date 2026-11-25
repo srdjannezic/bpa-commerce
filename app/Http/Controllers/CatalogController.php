@@ -6,13 +6,12 @@ use App\Http\Requests\CatalogRequest;
 use App\Services\CategoryService;
 use App\Services\ProductService;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Response;
 
 class CatalogController extends Controller
 {
     public function __construct(private ProductService $products, private CategoryService $categories) {}
 
-    public function index(CatalogRequest $request): Response
+    public function index(CatalogRequest $request): View
     {
         $page = filter_var($request->query('page', 1), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 1000000]]) ?: 1;
         $filters = array_filter($request->validated(), fn (?string $value) => $value !== null);
@@ -20,12 +19,8 @@ class CatalogController extends Controller
         abort_if($page > $products->lastPage(), 404);
 
         $categories = $this->categories->options();
-        $response = response()->view('catalog.index', compact('products', 'filters', 'categories'));
-        $response->setCache(['private' => true, 'no_cache' => true, 'must_revalidate' => true]);
-        $response->setEtag(hash('sha256', $response->getContent().$products->getCollection()->pluck('revision')->implode(',')));
-        $response->isNotModified($request);
 
-        return $response;
+        return view('catalog.index', compact('products', 'filters', 'categories'));
     }
 
     public function show(int $product): View

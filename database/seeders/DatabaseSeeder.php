@@ -6,7 +6,9 @@ use App\Enums\Role;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\CategoryService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -41,6 +43,7 @@ class DatabaseSeeder extends Seeder
             $categoryNames,
         )));
         $categoryIds = Category::query()->whereIn('name', array_values($categoryNames))->pluck('id', 'name');
+        Cache::forget(CategoryService::CACHE_KEY);
 
         $products = [
             ['Podloga Logor', 'Lagano pakovanje sa kompresionim trakama za kampovanje i predah na dužim turama.', 429000, 16, '/images/oprema.webp#podloga', 'camp'],

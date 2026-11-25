@@ -20,15 +20,11 @@ class StoreTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_product_changes_replace_the_browser_catalog_validator(): void
+    public function test_admin_product_changes_are_visible_in_the_catalog(): void
     {
         $product = $this->product();
         $first = $this->get('/')->assertOk()->assertSee($product->name);
-        $etag = $first->headers->get('ETag');
-        $this->assertNotNull($etag);
-        $this->assertStringContainsString('no-cache', $first->headers->get('Cache-Control'));
         $this->assertEmpty($first->headers->getCookies());
-        $this->get('/', ['If-None-Match' => $etag])->assertStatus(304);
 
         $this->get('/admin/products')->assertRedirect(route('admin.login'));
         $this->signInAdmin($this->admin());
@@ -45,7 +41,7 @@ class StoreTest extends TestCase
 
         $this->put(route('admin.products.update', $product->id), $edit)->assertSessionHasNoErrors();
         $this->assertDatabaseHas('products', ['id' => $product->id, 'price_minor' => 590055, 'revision' => 2]);
-        $this->get('/', ['If-None-Match' => $etag])->assertOk()->assertSee('Izmenjen ranac');
+        $this->get('/')->assertOk()->assertSee('Izmenjen ranac');
         $this->put(route('admin.products.update', $product->id), $edit)->assertSessionHasErrors('product');
 
         $this->delete(route('admin.products.destroy', $product->id))->assertRedirect(route('admin.products.index'));
@@ -73,13 +69,11 @@ class StoreTest extends TestCase
         $this->get('/?q=ništa')->assertOk()->assertSee('Nema proizvoda za izabrane kriterijume.');
 
         $invalid = $this->get('/?min_price=200&max_price=0')->assertUnprocessable()->assertSee('Najviša cena');
-        $this->assertNull($invalid->headers->get('ETag'));
-        $this->assertStringContainsString('no-store', $invalid->headers->get('Cache-Control'));
         $this->assertEmpty($invalid->headers->getCookies());
         $this->get('/?q%5B%5D=x')->assertUnprocessable();
     }
 
-    public function test_catalog_pagination_retains_filters_and_uses_a_conditional_response(): void
+    public function test_catalog_pagination_retains_filters(): void
     {
         Product::query()->insert(array_map(fn (int $index) => [
             'name' => 'Termos '.$index,
@@ -90,14 +84,11 @@ class StoreTest extends TestCase
         $this->product();
 
         $url = '/?q=Termos&min_price=0&stock=available';
-        $first = $this->get($url)->assertOk()
+        $this->get($url)->assertOk()
             ->assertViewHas('products', fn ($products) => $products->count() === 12 && $products->total() === 13)
             ->assertSee('q=Termos&amp;min_price=0&amp;stock=available&amp;page=2#oprema', false);
-        $second = $this->get($url.'&page=2')->assertOk()
+        $this->get($url.'&page=2')->assertOk()
             ->assertViewHas('products', fn ($products) => $products->count() === 1 && $products->total() === 13);
-
-        $this->assertNotSame($first->headers->get('ETag'), $second->headers->get('ETag'));
-        $this->get($url.'&page=2', ['If-None-Match' => $second->headers->get('ETag')])->assertStatus(304);
     }
 
     public function test_category_filters_catalog_and_recommends_only_other_active_products(): void
@@ -130,6 +121,8 @@ class StoreTest extends TestCase
             ->assertSessionHasNoErrors()->assertRedirect(route('admin.categories.index'));
         $category = Category::query()->sole();
         $this->get(route('admin.products.create'))->assertOk()->assertSee('Rasveta');
+        $this->post(route('admin.categories.store'), ['name' => 'Kampovanje'])->assertSessionHasNoErrors();
+        $this->get(route('admin.categories.index'))->assertOk()->assertSee('Kampovanje');
 
         $data = [
             'name' => 'Kamp fenjer',
@@ -138,7 +131,7 @@ class StoreTest extends TestCase
             'stock' => 7,
             'is_active' => 1,
         ];
-        $this->post(route('admin.products.store'), $data + ['category_id' => $category->id + 1])
+        $this->post(route('admin.products.store'), $data + ['category_id' => 999999])
             ->assertSessionHasErrors('category_id');
         $this->post(route('admin.products.store'), $data + ['category_id' => $category->id])
             ->assertSessionHasNoErrors()->assertRedirect(route('admin.products.index'));

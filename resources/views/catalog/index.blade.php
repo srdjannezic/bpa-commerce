@@ -26,8 +26,8 @@
             <label class="catalog-category">Kategorija
                 <select name="category">
                     <option value="">Sve kategorije</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}" @selected((string) ($filters['category'] ?? '') === (string) $category->id)>{{ $category->name }}</option>
+                    @foreach ($categories as $id => $name)
+                        <option value="{{ $id }}" @selected((string) ($filters['category'] ?? '') === (string) $id)>{{ $name }}</option>
                     @endforeach
                 </select>
             </label>

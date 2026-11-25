@@ -12,8 +12,8 @@
             <label>Kategorija
                 <select name="category_id">
                     <option value="">Bez kategorije</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}" @selected((string) old('category_id', $product?->category_id) === (string) $category->id)>{{ $category->name }}</option>
+                    @foreach ($categories as $id => $name)
+                        <option value="{{ $id }}" @selected((string) old('category_id', $product?->category_id) === (string) $id)>{{ $name }}</option>
                     @endforeach
                 </select>
             </label>
