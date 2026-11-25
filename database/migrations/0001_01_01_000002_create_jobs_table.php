@@ -6,12 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Create the queue, batch and failed job tables.
-     */
     public function up(): void
     {
-        Schema::create('jobs', /** Store pending jobs and their queue timing. */ function (Blueprint $table) {
+        Schema::create('jobs', function (Blueprint $table) {
             $table->id();
             $table->string('queue')->index();
             $table->longText('payload');
@@ -21,7 +18,7 @@ return new class extends Migration
             $table->unsignedInteger('created_at');
         });
 
-        Schema::create('job_batches', /** Track job batch progress and failures. */ function (Blueprint $table) {
+        Schema::create('job_batches', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('name');
             $table->integer('total_jobs');
@@ -34,7 +31,7 @@ return new class extends Migration
             $table->integer('finished_at')->nullable();
         });
 
-        Schema::create('failed_jobs', /** Store terminal job failures for inspection. */ function (Blueprint $table) {
+        Schema::create('failed_jobs', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();
             $table->string('connection');
@@ -47,9 +44,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Drop the queue, batch and failed job tables.
-     */
     public function down(): void
     {
         Schema::dropIfExists('jobs');

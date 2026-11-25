@@ -6,12 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Create the product, cart item, order and order item tables.
-     */
     public function up(): void
     {
-        Schema::create('products', /** Define the initial product catalog and inventory. */ function (Blueprint $table): void {
+        Schema::create('products', function (Blueprint $table): void {
             $table->id();
             $table->string('name', 120);
             $table->text('description');
@@ -24,7 +21,7 @@ return new class extends Migration
             $table->index(['is_active', 'id']);
         });
 
-        Schema::create('cart_items', /** Link the initial cart items to users and products. */ function (Blueprint $table): void {
+        Schema::create('cart_items', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
@@ -33,7 +30,7 @@ return new class extends Migration
             $table->unique(['user_id', 'product_id']);
         });
 
-        Schema::create('orders', /** Store recipient, delivery and payment details for each order. */ function (Blueprint $table): void {
+        Schema::create('orders', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->restrictOnDelete();
             $table->string('recipient_name', 120);
@@ -52,7 +49,7 @@ return new class extends Migration
             $table->index(['payment_status', 'id']);
         });
 
-        Schema::create('order_items', /** Store the product name, price and quantity at purchase time. */ function (Blueprint $table): void {
+        Schema::create('order_items', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
@@ -63,9 +60,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Drop the store tables in dependency order.
-     */
     public function down(): void
     {
         Schema::dropIfExists('order_items');
