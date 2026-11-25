@@ -16,14 +16,8 @@ class SendPaymentConfirmation implements ShouldQueue
 
     public array $backoff = [15, 60, 300];
 
-    /**
-     * Keep the order ID for lookup when the job runs.
-     */
     public function __construct(public int $orderId) {}
 
-    /**
-     * Send the payment confirmation to the order recipient.
-     */
     public function handle(): void
     {
         $order = Order::query()->findOrFail($this->orderId);

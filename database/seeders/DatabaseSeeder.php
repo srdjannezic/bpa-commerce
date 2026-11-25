@@ -12,9 +12,6 @@ use RuntimeException;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed demo accounts, catalog products and their categories.
-     */
     public function run(): void
     {
         if (! app()->environment('local')) {
@@ -40,7 +37,6 @@ class DatabaseSeeder extends Seeder
         ];
         $now = now();
         Category::query()->insertOrIgnore(array_values(array_map(
-            /** Build a category row with timestamps. */
             fn (string $name) => ['name' => $name, 'created_at' => $now, 'updated_at' => $now],
             $categoryNames,
         )));
@@ -111,11 +107,6 @@ class DatabaseSeeder extends Seeder
         $this->categorizeExistingProducts($categoryByImage);
     }
 
-    /**
-     * Assign categories to uncategorized demo products based on their image paths.
-     *
-     * @param  array<string, int>  $categoryByImage
-     */
     private function categorizeExistingProducts(array $categoryByImage): void
     {
         $branches = array_fill(0, count($categoryByImage), 'WHEN ? THEN ?');

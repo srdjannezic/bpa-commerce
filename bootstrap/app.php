@@ -11,9 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware()
-    ->withExceptions(/** Configure exception handling for the application. */ function (Exceptions $exceptions): void {
+    ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            /** Select requests that should receive JSON errors. */
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
     })->create();

@@ -20,9 +20,6 @@ class StoreTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Verify catalog cache validation and public visibility after inventory changes.
-     */
     public function test_product_changes_replace_the_browser_catalog_validator(): void
     {
         $product = $this->product();
@@ -56,9 +53,6 @@ class StoreTest extends TestCase
         $this->get('/')->assertOk()->assertDontSee('Izmenjen ranac');
     }
 
-    /**
-     * Verify combined filters, literal wildcard search and invalid filter responses.
-     */
     public function test_catalog_combines_search_price_and_availability(): void
     {
         $byName = $this->product(['name' => 'Termos', 'price_minor' => 129990]);
@@ -71,11 +65,11 @@ class StoreTest extends TestCase
         $literal = $this->product(['name' => 'Oprema 100%']);
 
         $this->get('/?q=termOS&min_price=1000&max_price=1299,90&stock=available')
-            ->assertOk()->assertViewHas('products', /** Expect matches from both product names and descriptions. */ fn ($products) => $products->pluck('id')->all() === [$byDescription->id, $byName->id]);
+            ->assertOk()->assertViewHas('products', fn ($products) => $products->pluck('id')->all() === [$byDescription->id, $byName->id]);
         $this->get('/?q=termos&stock=sold_out')
-            ->assertOk()->assertViewHas('products', /** Expect only the sold-out match. */ fn ($products) => $products->pluck('id')->all() === [$soldOut->id]);
+            ->assertOk()->assertViewHas('products', fn ($products) => $products->pluck('id')->all() === [$soldOut->id]);
         $this->get('/?q=%25')
-            ->assertOk()->assertViewHas('products', /** Expect only the product with a literal percent sign. */ fn ($products) => $products->pluck('id')->all() === [$literal->id]);
+            ->assertOk()->assertViewHas('products', fn ($products) => $products->pluck('id')->all() === [$literal->id]);
         $this->get('/?q=ništa')->assertOk()->assertSee('Nema proizvoda za izabrane kriterijume.');
 
         $invalid = $this->get('/?min_price=200&max_price=0')->assertUnprocessable()->assertSee('Najviša cena');
@@ -85,12 +79,9 @@ class StoreTest extends TestCase
         $this->get('/?q%5B%5D=x')->assertUnprocessable();
     }
 
-    /**
-     * Verify filter preservation across pages and conditional catalog responses.
-     */
     public function test_catalog_pagination_retains_filters_and_uses_a_conditional_response(): void
     {
-        Product::query()->insert(array_map(/** Build one matching product row per index. */ fn (int $index) => [
+        Product::query()->insert(array_map(fn (int $index) => [
             'name' => 'Termos '.$index,
             'description' => 'Opis',
             'price_minor' => 50000,
@@ -100,18 +91,15 @@ class StoreTest extends TestCase
 
         $url = '/?q=Termos&min_price=0&stock=available';
         $first = $this->get($url)->assertOk()
-            ->assertViewHas('products', /** Expect a full first page and the filtered total. */ fn ($products) => $products->count() === 12 && $products->total() === 13)
+            ->assertViewHas('products', fn ($products) => $products->count() === 12 && $products->total() === 13)
             ->assertSee('q=Termos&amp;min_price=0&amp;stock=available&amp;page=2#oprema', false);
         $second = $this->get($url.'&page=2')->assertOk()
-            ->assertViewHas('products', /** Expect the remaining match on the second page. */ fn ($products) => $products->count() === 1 && $products->total() === 13);
+            ->assertViewHas('products', fn ($products) => $products->count() === 1 && $products->total() === 13);
 
         $this->assertNotSame($first->headers->get('ETag'), $second->headers->get('ETag'));
         $this->get($url.'&page=2', ['If-None-Match' => $second->headers->get('ETag')])->assertStatus(304);
     }
 
-    /**
-     * Verify category filtering and the visibility of related products.
-     */
     public function test_category_filters_catalog_and_recommends_only_other_active_products(): void
     {
         $lights = Category::query()->create(['name' => 'Rasveta']);
@@ -123,7 +111,7 @@ class StoreTest extends TestCase
 
         $this->get('/?category='.$lights->id.'&stock=available')->assertOk()
             ->assertSee('Na stanju: 3 kom.')
-            ->assertViewHas('products', /** Expect available products from the selected category. */ fn ($products) => $products->pluck('id')->all() === [$related->id, $current->id]);
+            ->assertViewHas('products', fn ($products) => $products->pluck('id')->all() === [$related->id, $current->id]);
 
         $this->get(route('products.show', $current->id))->assertOk()
             ->assertSee('Rasveta')
@@ -131,12 +119,9 @@ class StoreTest extends TestCase
             ->assertSee('Čeona lampa')
             ->assertDontSee('Arhivirana lampa')
             ->assertDontSee('Šator')
-            ->assertViewHas('related', /** Expect only the other active product from the same category. */ fn ($products) => $products->pluck('id')->all() === [$related->id]);
+            ->assertViewHas('related', fn ($products) => $products->pluck('id')->all() === [$related->id]);
     }
 
-    /**
-     * Verify that administrators can manage categories and product stock.
-     */
     public function test_admin_can_create_a_category_and_set_category_and_stock_on_a_product(): void
     {
         $this->post(route('admin.categories.store'), ['name' => 'Rasveta'])->assertRedirect(route('admin.login'));
@@ -162,9 +147,6 @@ class StoreTest extends TestCase
         $this->get(route('admin.products.index'))->assertOk()->assertSee('Rasveta');
     }
 
-    /**
-     * Verify guest order history and idempotent payment confirmation.
-     */
     public function test_checkout_stores_history_and_queues_only_one_payment_confirmation(): void
     {
         Mail::fake();
@@ -222,12 +204,9 @@ class StoreTest extends TestCase
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'payment_status' => 'paid', 'paid_by' => $admin->id]);
         $this->assertDatabaseCount('jobs', 1);
         (new SendPaymentConfirmation($order->id))->handle();
-        Mail::assertSent(PaymentConfirmed::class, /** Match the confirmation sent to the buyer. */ fn ($mail) => $mail->hasTo($buyer->email));
+        Mail::assertSent(PaymentConfirmed::class, fn ($mail) => $mail->hasTo($buyer->email));
     }
 
-    /**
-     * Verify transaction rollback when a cart item is no longer available.
-     */
     public function test_checkout_rolls_back_all_changes_if_any_item_loses_stock(): void
     {
         $first = $this->product();
@@ -253,9 +232,6 @@ class StoreTest extends TestCase
         $this->assertSame(10, $first->fresh()->stock);
     }
 
-    /**
-     * Verify account creation permissions and administrator validation.
-     */
     public function test_only_admins_can_create_users_and_admins(): void
     {
         $customerData = ['name' => 'Kupac', 'email' => 'KUPAC@example.test', 'role' => 'customer'];
@@ -287,11 +263,6 @@ class StoreTest extends TestCase
         $this->get(route('admin.users.index'))->assertOk();
     }
 
-    /**
-     * Create a product fixture with optional attribute overrides.
-     *
-     * @param  array<string, mixed>  $attributes
-     */
     private function product(array $attributes = []): Product
     {
         return Product::query()->create($attributes + [
@@ -303,17 +274,11 @@ class StoreTest extends TestCase
         ]);
     }
 
-    /**
-     * Create an administrator fixture.
-     */
     private function admin(): User
     {
         return User::factory()->create(['role' => Role::Admin, 'password' => 'lozinka-123']);
     }
 
-    /**
-     * Authenticate the supplied administrator through the login route.
-     */
     private function signInAdmin(User $admin): void
     {
         $response = $this->post(route('admin.login.store'), [

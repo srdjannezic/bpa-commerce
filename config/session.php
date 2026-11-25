@@ -3,7 +3,6 @@
 use Illuminate\Support\Str;
 
 return [
-
     'driver' => env('SESSION_DRIVER', 'database'),
 
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
@@ -40,5 +39,4 @@ return [
     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
 
     'serialization' => 'json',
-
 ];

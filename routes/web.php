@@ -23,7 +23,7 @@ Route::pattern('order', '[0-9]{1,18}');
 Route::get('/', [CatalogController::class, 'index'])
     ->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, PreventRequestForgery::class])
     ->name('catalog');
-Route::middleware(GuestCart::class)->group(/** Register storefront routes that use a guest cart session. */ function (): void {
+Route::middleware(GuestCart::class)->group(function (): void {
     Route::get('/proizvodi/{product}', [CatalogController::class, 'show'])->block()->name('products.show');
     Route::get('/porudzbine', [GuestOrderController::class, 'index'])->block()->name('orders.history');
     Route::get('/porudzbine/{order}', [GuestOrderController::class, 'show'])->block()->name('orders.show');
@@ -34,12 +34,12 @@ Route::middleware(GuestCart::class)->group(/** Register storefront routes that u
     Route::post('/porudzbine', [CheckoutController::class, 'store'])->block()->name('checkout.store');
 });
 
-Route::prefix('admin')->name('admin.')->group(/** Register routes under the admin prefix. */ function (): void {
+Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::redirect('/', '/admin/products')->name('home');
     Route::view('/login', 'auth.login')->name('login');
     Route::post('/login', [AdminAuth::class, 'login'])->middleware('throttle:8,1')->name('login.store');
 
-    Route::middleware(AdminJwt::class)->group(/** Register admin routes that require authentication. */ function (): void {
+    Route::middleware(AdminJwt::class)->group(function (): void {
         Route::post('/logout', [AdminAuth::class, 'logout'])->name('logout');
         Route::resource('products', AdminProducts::class)->except('show');
         Route::resource('categories', AdminCategories::class)->only(['index', 'store']);

@@ -6,9 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CheckoutRequest extends FormRequest
 {
-    /**
-     * Normalize the recipient email to lowercase before validation.
-     */
     protected function prepareForValidation(): void
     {
         if (is_string($this->input('recipient_email'))) {
@@ -16,11 +13,6 @@ class CheckoutRequest extends FormRequest
         }
     }
 
-    /**
-     * Validate delivery details and the total shown at checkout.
-     *
-     * @return array<string, list<string>>
-     */
     public function rules(): array
     {
         return [

@@ -9,16 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminJwt
 {
-    /**
-     * Set up the service used to resolve administrator tokens.
-     */
     public function __construct(private AdminAuthService $auth) {}
 
-    /**
-     * Resolve the administrator for the request and prevent caching of authenticated responses.
-     *
-     * @param  Closure(Request): Response  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         $admin = $this->auth->resolve(

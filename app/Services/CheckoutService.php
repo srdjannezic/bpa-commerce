@@ -12,23 +12,11 @@ use Illuminate\Validation\ValidationException;
 
 class CheckoutService
 {
-    /**
-     * Set up customer lookup and creation for checkout.
-     */
     public function __construct(private UserService $users) {}
 
-    /**
-     * Place an order, lock and decrement stock, and clear the guest cart in one transaction.
-     *
-     * @param  string  $key  Guest cart session key.
-     * @param  array{recipient_email: string, recipient_name: string, phone: string, address: string, city: string, postal_code: string}  $delivery
-     * @param  int  $expectedTotal  Total in minor units shown to the customer.
-     *
-     * @throws ValidationException
-     */
     public function place(string $key, array $delivery, int $expectedTotal): Order
     {
-        return DB::transaction(/** Lock the products until order creation and stock updates commit. */ function () use ($key, $delivery, $expectedTotal): Order {
+        return DB::transaction(function () use ($key, $delivery, $expectedTotal): Order {
             $cart = Cart::query()->where('session_key', $key)->lockForUpdate()->first();
             $items = $cart?->items()->orderBy('product_id')->get();
 
@@ -83,7 +71,6 @@ class CheckoutService
             $cart->orders()->save($order);
 
             OrderItem::query()->insert(array_map(
-                /** Associate each line item with the new order. */
                 fn (array $line) => ['order_id' => $order->id] + $line,
                 $lines,
             ));

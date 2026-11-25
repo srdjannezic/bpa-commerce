@@ -18,11 +18,6 @@ class User extends Authenticatable
 
     protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * Cast the role and verification timestamp and hash assigned passwords.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -32,21 +27,11 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Get the cart associated with this user.
-     *
-     * @return HasOne<Cart, $this>
-     */
     public function cart(): HasOne
     {
         return $this->hasOne(Cart::class);
     }
 
-    /**
-     * Get orders placed under this user account.
-     *
-     * @return HasMany<Order, $this>
-     */
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

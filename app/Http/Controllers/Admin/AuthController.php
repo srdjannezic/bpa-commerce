@@ -11,14 +11,8 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    /**
-     * Set up the service that issues administrator tokens.
-     */
     public function __construct(private AdminAuthService $auth) {}
 
-    /**
-     * Sign in the administrator and store the session-bound token in a cookie.
-     */
     public function login(LoginRequest $request): RedirectResponse
     {
         $loginId = Str::random(48);
@@ -39,9 +33,6 @@ class AuthController extends Controller
         );
     }
 
-    /**
-     * End the administrator session and clear its authentication cookie.
-     */
     public function logout(Request $request): RedirectResponse
     {
         $request->session()->forget(AdminAuthService::SESSION_KEY);

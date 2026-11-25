@@ -5,13 +5,9 @@ namespace App\Http\Requests;
 use App\Enums\Role;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
 
 class CreateUserRequest extends FormRequest
 {
-    /**
-     * Normalize the account email to lowercase before validation.
-     */
     protected function prepareForValidation(): void
     {
         if (is_string($this->input('email'))) {
@@ -19,11 +15,6 @@ class CreateUserRequest extends FormRequest
         }
     }
 
-    /**
-     * Validate account details and require a password for administrators.
-     *
-     * @return array<string, list<string|Enum|\Closure>>
-     */
     public function rules(): array
     {
         return [

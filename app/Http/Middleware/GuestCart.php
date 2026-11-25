@@ -11,11 +11,6 @@ class GuestCart
 {
     public const KEY = 'guest_cart_key';
 
-    /**
-     * Initialize the guest cart session key and prevent caching of the response.
-     *
-     * @param  Closure(Request): Response  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         $session = $request->session();

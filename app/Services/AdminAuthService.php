@@ -19,13 +19,6 @@ class AdminAuthService
 
     public const SESSION_KEY = 'admin_jwt_id';
 
-    /**
-     * Validate administrator credentials and issue a token tied to the login ID.
-     *
-     * @param  array{email: string, password: string}  $credentials
-     *
-     * @throws ValidationException
-     */
     public function login(array $credentials, string $loginId): string
     {
         $guard = Auth::guard('web');
@@ -44,9 +37,6 @@ class AdminAuthService
         ], $this->key(), 'HS256');
     }
 
-    /**
-     * Verify the token against the login ID and resolve the current administrator.
-     */
     public function resolve(?string $token, ?string $loginId): ?User
     {
         if (! $token || ! $loginId) {
@@ -69,9 +59,6 @@ class AdminAuthService
         return User::query()->where('role', Role::Admin->value)->find($claims->sub);
     }
 
-    /**
-     * Derive the signing key for administrator tokens from the application encryption key.
-     */
     private function key(): string
     {
         return hash_hkdf('sha256', app('encrypter')->getKey(), 32, 'staza.admin.jwt');

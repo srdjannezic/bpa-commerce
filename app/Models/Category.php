@@ -9,11 +9,6 @@ class Category extends Model
 {
     protected $fillable = ['name'];
 
-    /**
-     * Get the products assigned to this category.
-     *
-     * @return HasMany<Product, $this>
-     */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);

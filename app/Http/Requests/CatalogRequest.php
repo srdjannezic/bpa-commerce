@@ -11,11 +11,6 @@ use Illuminate\Validation\Validator;
 
 class CatalogRequest extends FormRequest
 {
-    /**
-     * Validate optional catalog filters, including decimal prices and stock status.
-     *
-     * @return array<string, list<string>>
-     */
     public function rules(): array
     {
         $price = ['bail', 'nullable', 'string', 'regex:/^[0-9]{1,7}([.,][0-9]{1,2})?$/D'];
@@ -29,15 +24,9 @@ class CatalogRequest extends FormRequest
         ];
     }
 
-    /**
-     * Check the ordering of price bounds after the individual fields pass validation.
-     *
-     * @return list<\Closure(Validator): void>
-     */
     public function after(): array
     {
         return [
-            /** Report an inverted price range after field validation. */
             function (Validator $validator): void {
                 $data = $validator->getData();
 
@@ -49,11 +38,6 @@ class CatalogRequest extends FormRequest
         ];
     }
 
-    /**
-     * Render the catalog with filter errors and a 422 status.
-     *
-     * @throws HttpResponseException
-     */
     protected function failedValidation(ValidatorContract $validator): void
     {
         $response = response()->view('catalog.index', [

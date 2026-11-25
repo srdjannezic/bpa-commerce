@@ -10,23 +10,11 @@ use Illuminate\Validation\ValidationException;
 
 class UserService
 {
-    /**
-     * Paginate user accounts from newest to oldest.
-     *
-     * @return LengthAwarePaginator<int, User>
-     */
     public function all(): LengthAwarePaginator
     {
         return User::query()->latest('id')->paginate(20);
     }
 
-    /**
-     * Create a user with the requested role and handle a duplicate email as a validation error.
-     *
-     * @param  array{name: string, email: string, role: 'admin'|'customer', password?: string|null}  $data
-     *
-     * @throws ValidationException
-     */
     public function create(array $data): void
     {
         $user = new User([
@@ -43,11 +31,6 @@ class UserService
         }
     }
 
-    /**
-     * Reuse a customer by email or create a customer account for checkout.
-     *
-     * @throws ValidationException If the email belongs to another role.
-     */
     public function findOrCreateCustomer(string $email, string $name): User
     {
         User::query()->upsert([

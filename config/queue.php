@@ -1,11 +1,9 @@
 <?php
 
 return [
-
     'default' => env('QUEUE_CONNECTION', 'database'),
 
     'connections' => [
-
         'sync' => [
             'driver' => 'sync',
         ],
@@ -63,7 +61,6 @@ return [
                 'deferred',
             ],
         ],
-
     ],
 
     'batching' => [
@@ -76,5 +73,4 @@ return [
         'database' => env('DB_CONNECTION', 'sqlite'),
         'table' => 'failed_jobs',
     ],
-
 ];

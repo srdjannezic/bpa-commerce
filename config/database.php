@@ -4,11 +4,9 @@ use Illuminate\Support\Str;
 use Pdo\Mysql;
 
 return [
-
     'default' => env('DB_CONNECTION', 'sqlite'),
 
     'connections' => [
-
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
@@ -88,7 +86,6 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
         ],
-
     ],
 
     'migrations' => [
@@ -97,7 +94,6 @@ return [
     ],
 
     'redis' => [
-
         'client' => env('REDIS_CLIENT', 'phpredis'),
 
         'options' => [
@@ -131,7 +127,5 @@ return [
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
         ],
-
     ],
-
 ];
